@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f9ff;
+        }
+        .textarea-container {
+            position: relative;
+        }
+        .copy-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-sky-800">Language Translator</h1>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Source Text -->
+            <div class="bg-white rounded-lg shadow-lg p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <select id="sourceLanguage" class="bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="auto">Detect Language</option>
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="it">Italian</option>
+                        <option value="pt">Portuguese</option>
+                        <option value="ru">Russian</option>
+                        <option value="ja">Japanese</option>
+                        <option value="ko">Korean</option>
+                        <option value="zh">Chinese</option>
+                    </select>
+                    <div id="detectedLang" class="text-sm text-gray-600"></div>
+                </div>
+                <div class="textarea-container">
+                    <textarea id="sourceText" class="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Enter text to translate..."></textarea>
+                    <button onclick="copyText('sourceText')" class="copy-button p-2 text-gray-600 hover:text-sky-600">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Translated Text -->
+            <div class="bg-white rounded-lg shadow-lg p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <select id="targetLanguage" class="bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="it">Italian</option>
+                        <option value="pt">Portuguese</option>
+                        <option value="ru">Russian</option>
+                        <option value="ja">Japanese</option>
+                        <option value="ko">Korean</option>
+                        <option value="zh">Chinese</option>
+                    </select>
+                    <button onclick="swapLanguages()" class="p-2 text-gray-600 hover:text-sky-600">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </button>
+                </div>
+                <div class="textarea-container">
+                    <textarea id="translatedText" class="w-full h-48 p-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-sky-500" readonly placeholder="Translation will appear here..."></textarea>
+                    <button onclick="copyText('translatedText')" class="copy-button p-2 text-gray-600 hover:text-sky-600">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-center mt-6">
+            <button onclick="translateText()" class="bg-sky-600 hover:bg-sky-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                Translate
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Simulated translation API response (in real implementation, you would use a proper translation API)
+        function simulateTranslation(text, targetLang) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(`Translated text to ${targetLang}: ${text}`);
+                }, 1000);
+            });
+        }
+
+        // Simulated language detection (in real implementation, you would use a proper detection API)
+        function detectLanguage(text) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve("English (Detected)");
+                }, 500);
+            });
+        }
+
+        async function translateText() {
+            const sourceText = document.getElementById('sourceText').value;
+            const targetLang = document.getElementById('targetLanguage').value;
+            
+            if (!sourceText.trim()) {
+                alert('Please enter some text to translate');
+                return;
+            }
+
+            // Detect language
+            const detectedLang = await detectLanguage(sourceText);
+            document.getElementById('detectedLang').textContent = detectedLang;
+
+            // Translate text
+            const translatedText = await simulateTranslation(sourceText, targetLang);
+            document.getElementById('translatedText').value = translatedText;
+        }
+
+        function swapLanguages() {
+            const sourceSelect = document.getElementById('sourceLanguage');
+            const targetSelect = document.getElementById('targetLanguage');
+            const sourceText = document.getElementById('sourceText');
+            const translatedText = document.getElementById('translatedText');
+
+            // Swap selected languages
+            const tempLang = sourceSelect.value;
+            sourceSelect.value = targetSelect.value;
+            targetSelect.value = tempLang;
+
+            // Swap text content
+            const tempText = sourceText.value;
+            sourceText.value = translatedText.value;
+            translatedText.value = tempText;
+        }
+
+        function copyText(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            
+            // Show feedback (you could add a tooltip or notification here)
+            const button = element.nextElementSibling;
+            const originalIcon = button.innerHTML;
+            button.innerHTML = '<i class="bi bi-check2"></i>';
+            setTimeout(() => {
+                button.innerHTML = originalIcon;
+            }, 1000);
+        }
+
+        // Auto-resize textareas
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
